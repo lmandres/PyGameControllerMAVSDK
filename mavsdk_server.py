@@ -64,13 +64,18 @@ async def run():
         if message.split()[4] == "True":
             done = True
 
+        print(
+            roll,
+            pitch,
+            throttle,
+            yaw
+        )
         await drone.manual_control.set_manual_control_input(
             roll,
             pitch,
             throttle,
             yaw
         )
-        await asyncio.sleep(0.1)
 
     print("-- Landing")
     await drone.action.land()

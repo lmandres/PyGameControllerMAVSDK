@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket
+import time
 
 import pygame
 
@@ -43,6 +44,8 @@ def run():
             )
             print(message)
             client.sendto(message.encode(), ("10.0.0.197", 20001))
+
+            time.sleep(0.1)
 
     pygame.joystick.quit()
     pygame.quit()

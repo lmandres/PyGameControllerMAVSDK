@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import pygame
+
+
+def run():
+
+    pygame.init()
+    pygame.joystick.init()
+
+    client = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+
+    done = False
+    if pygame.joystick.get_count():
+
+        joystick = pygame.joystick.Joystick(0)
+
+        while not done:
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+
+            roll = float(-joystick.get_axis(4))
+            pitch = float(joystick.get_axis(3))
+            throttle = float(0.5+(-(joystick.get_axis(1))/2))
+            yaw = float(joystick.get_axis(0))
+
+            button_land_left = joystick.get_button(4)
+            button_land_right = joystick.get_button(5)
+
+            if button_land_left == 1 and button_land_right == 1:
+                done = True
+
+            messageTuple = (
+                roll,
+                pitch,
+                throttle,
+                yaw,
+                done
+            )
+            print(messageTuple)
+
+    pygame.joystick.quit()
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    run()

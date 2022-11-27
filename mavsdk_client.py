@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import socket
+
 import pygame
 
 
@@ -32,14 +34,15 @@ def run():
             if button_land_left == 1 and button_land_right == 1:
                 done = True
 
-            messageTuple = (
+            message = "{} {} {} {} {}".format(
                 roll,
                 pitch,
                 throttle,
                 yaw,
                 done
             )
-            print(messageTuple)
+            print(message)
+            client.sendto(message.encode(), ("10.0.0.197", 20001))
 
     pygame.joystick.quit()
     pygame.quit()

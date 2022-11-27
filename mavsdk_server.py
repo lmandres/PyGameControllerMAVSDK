@@ -64,8 +64,7 @@ async def run():
         if message.split()[4] == "True":
             done = True
 
-        #await drone.manual_control.set_manual_control_input(
-        print(
+        await drone.manual_control.set_manual_control_input(
             roll,
             pitch,
             throttle,

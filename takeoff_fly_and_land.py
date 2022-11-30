@@ -3,13 +3,20 @@
 import asyncio
 
 from mavsdk import System
+from mavsdk.telemetry import LandedState
 import pygame
 
 
 async def run():
 
-    drone = System()
-    await drone.connect(system_address="udp://:14540")
+    drone = System(
+        mavsdk_server_address="10.0.0.197",
+        port=50051
+    )
+
+    print("Making connection to drone...")
+    await drone.connect(system_address="udp://10.0.0.197:14580")
+    print("Connection succeeded...")
 
     status_text_task = asyncio.ensure_future(print_status_text(drone))
 
@@ -21,6 +28,8 @@ async def run():
         if state.is_connected:
             print(f"-- Connected to drone!")
             break
+        else:
+            print(state)
 
     print("Waiting for drone to have a global position estimate...")
     async for health in drone.telemetry.health():
@@ -34,7 +43,13 @@ async def run():
     print("-- Taking off")
     await drone.action.takeoff()
 
-    await asyncio.sleep(10)
+    print("-- Waiting for drone to takeoff")
+    async for state in drone.telemetry.landed_state():
+        if state and state == LandedState.IN_AIR:
+            print("-- Drone has taken off: ", state)
+            break
+        elif state:
+            print("-- Drone state: ", state)
 
     done = False
     if pygame.joystick.get_count():
@@ -80,6 +95,14 @@ async def run():
 
     print("-- Landing")
     await drone.action.land()
+
+    print("-- Waiting for drone to land")
+    async for state in drone.telemetry.landed_state():
+        if state and state == LandedState.ON_GROUND:
+            print("-- Drone has landed: ", state)
+            break
+        elif state:
+            print("-- Drone state: ", state)
 
     status_text_task.cancel()
 

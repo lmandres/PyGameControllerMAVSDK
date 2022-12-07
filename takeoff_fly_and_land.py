@@ -64,6 +64,7 @@ async def run():
         )
         print("-- Starting manual control")
         await drone.manual_control.start_position_control()
+        print("-- Under manual control")
 
         while not done:
 
@@ -82,6 +83,12 @@ async def run():
             if button_land_left == 1 and button_land_right == 1:
                 done = True
 
+            print(
+                "Roll: ", roll,
+                "Pitch: ", pitch,
+                "Throttle: ", throttle,
+                "Yaw: ", yaw
+            )
             await drone.manual_control.set_manual_control_input(
                 roll,
                 pitch,
@@ -107,15 +114,16 @@ async def run():
     status_text_task.cancel()
 
 
-
 async def print_status_text(drone):
     try:
         async for status_text in drone.telemetry.status_text():
             print(f"Status: {status_text.type}: {status_text.text}")
-    except asyncio.CancelledError:
-        return
+    except asyncio.CancelledError as ce:
+        raise ce
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     loop.run_until_complete(run())

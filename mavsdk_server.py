@@ -49,40 +49,43 @@ async def run():
 
     print("-- UDP server up and listening")
 
-    while not done:
+    try:
 
-        bytesAddressPair = server.recvfrom(1024)
-        message = bytesAddressPair[0]
-        address = bytesAddressPair[0]
+        while True:
 
-        roll = float(message.split()[0])
-        pitch = float(message.split()[1])
-        throttle = float(message.split()[2])
-        yaw = float(message.split()[3])
-        done = False
+            bytesAddressPair = server.recvfrom(1024)
+            message = bytesAddressPair[0]
+            address = bytesAddressPair[0]
 
-        if message.split()[4] == "True":
-            done = True
+            roll = float(message.split()[0])
+            pitch = float(message.split()[1])
+            throttle = float(message.split()[2])
+            yaw = float(message.split()[3])
+            done = False
 
-        print(
-            roll,
-            pitch,
-            throttle,
-            yaw
-        )
-        await drone.manual_control.set_manual_control_input(
-            roll,
-            pitch,
-            throttle,
-            yaw
-        )
+            if message.split()[4] == "True":
+                done = True
 
-    print("-- Landing")
-    await drone.action.land()
+            print(
+                roll,
+                pitch,
+                throttle,
+                yaw
+            )
+            await drone.manual_control.set_manual_control_input(
+                roll,
+                pitch,
+                throttle,
+                yaw
+            )
 
-    status_text_task.cancel()
+        print("-- Landing")
+        await drone.action.land()
 
+        status_text_task.cancel()
 
+    except KeyboardInterrupt:
+        print("-- Keyboard interrupt . . . exiting.")
 
 async def print_status_text(drone):
     try:

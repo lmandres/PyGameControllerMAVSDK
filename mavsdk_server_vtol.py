@@ -47,9 +47,6 @@ async def run():
 
     print("-- UDP server up and listening")
 
-    print("-- Transition to fixed wing")
-    await drone.action.transition_to_fixedwing() 
-
     done = False
     try:
 
@@ -63,16 +60,26 @@ async def run():
             pitch = float(message.split()[1])
             throttle = float(message.split()[2])
             yaw = float(message.split()[3])
+            trans_to_fixedwing = int(message.split()[4])
+            trans_to_multicopter = int(message.split()[5])
             done = False
 
-            if message.split()[4] == "True":
+            if message.split()[6] == b"True":
                 done = True
+            elif trans_to_fixedwing == 1:
+                print("-- Transition to fixed wing")
+                await drone.action.transition_to_fixedwing() 
+            elif trans_to_multicopter == 1:
+                print("-- Transition to multicopter")
+                await drone.action.transition_to_multicopter()
+
 
             print(
                 roll,
                 pitch,
                 throttle,
-                yaw
+                yaw,
+                done
             )
             await drone.manual_control.set_manual_control_input(
                 roll,
@@ -101,5 +108,4 @@ async def print_status_text(drone):
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(run())
+    asyncio.run(run())
